@@ -1,7 +1,4 @@
 #include <iostream>
-#include <list>
-#include <initializer_list>
-#include <cmath>
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 using namespace std;
@@ -25,16 +22,10 @@ int drivetrain_rpm(360);
 int horizontal_drift(2); // higher values make the robot move faster but causes more overshoot on turns. Recommended value of 2 if not using traction wheels, 8 if using traction wheels
 
 // parameter lists
-list<float> linear_PID = {10, 0, 25.5}; // kP, kI, kD for linear motion
-list<float> angular_PID = {2, 0, 10.5}; // kP, kI, kD for angular motion
-list<float> throttle_curve = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where drivetrain will move out of 127, expo curve gain
-list<float> steer_curve = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where drivetrain will move out of 127, expo curve gain
-
-// prototypes
-float linear_PID_i(int i);
-float angular_PID_i(int i);
-float throttle_curve_i(int i);
-float steer_curve_i(int i);
+float linear_PID[3] = {10, 0, 25.5}; // kP, kI, kD for linear motion
+float angular_PID[3] = {2, 0, 10.5}; // kP, kI, kD for angular motion
+float throttle_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where drivetrain will move out of 127, expo curve gain
+float steer_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where drivetrain will move out of 127, expo curve gain
 
 // Inertial Sensor on port
 Imu imu(inertial_sensor_port);
@@ -59,9 +50,9 @@ Drivetrain drivetrain(&leftMotors, // left motor group
 );
 
 // lateral motion controller
-ControllerSettings linearController(linear_PID_i(0), // proportional gain (kP)
-                                    linear_PID_i(1), // integral gain (kI)
-                                    linear_PID_i(2), // derivative gain (kD)
+ControllerSettings linearController(linear_PID[0], // proportional gain (kP)
+                                    linear_PID[1], // integral gain (kI)
+                                    linear_PID[2], // derivative gain (kD)
                                     3, // anti windup
                                     1, // small error range, in inches
                                     100, // small error range timeout, in milliseconds
@@ -71,9 +62,9 @@ ControllerSettings linearController(linear_PID_i(0), // proportional gain (kP)
 );
 
 // angular motion controller
-ControllerSettings angularController(angular_PID_i(0), // proportional gain (kP)
-                                     angular_PID_i(1), // integral gain (kI)
-                                     angular_PID_i(2), // derivative gain (kD)
+ControllerSettings angularController(angular_PID[0], // proportional gain (kP)
+                                     angular_PID[1], // integral gain (kI)
+                                     angular_PID[2], // derivative gain (kD)
                                      3, // anti windup
                                      1, // small error range, in degrees
                                      100, // small error range timeout, in milliseconds
@@ -91,15 +82,15 @@ OdomSensors sensors(&vertical, // vertical tracking wheel
 );
 
 // input curve for throttle input during driver control
-ExpoDriveCurve throttleCurve(throttle_curve_i(0), // joystick deadband out of 127
-                             throttle_curve_i(1), // minimum output where drivetrain will move out of 127
-                             throttle_curve_i(2) // expo curve gain
+ExpoDriveCurve throttleCurve(throttle_curve[0], // joystick deadband out of 127
+                             throttle_curve[1], // minimum output where drivetrain will move out of 127
+                             throttle_curve[2] // expo curve gain
 );
 
 // input curve for steer input during driver control
-ExpoDriveCurve steerCurve(steer_curve_i(0), // joystick deadband out of 127
-                          steer_curve_i(1), // minimum output where drivetrain will move out of 127
-                          steer_curve_i(2) // expo curve gain
+ExpoDriveCurve steerCurve(steer_curve[0], // joystick deadband out of 127
+                          steer_curve[1], // minimum output where drivetrain will move out of 127
+                          steer_curve[2] // expo curve gain
 );
 
 // create the chassis
@@ -175,25 +166,4 @@ void opcontrol() {
         delay(10);
 		chassis.moveToPoint(0,40,4000);
     }
-}
-
-float linear_PID_i(int i) {
-    auto it = linear_PID.begin();
-    advance(it, i);
-    return *it;
-}
-float angular_PID_i(int i) {
-    auto it = angular_PID.begin();
-    advance(it, i);
-    return *it;
-}
-float throttle_curve_i(int i) {
-    auto it = throttle_curve.begin();
-    advance(it, i);
-    return *it;
-}
-float steer_curve_i(int i) {
-    auto it = steer_curve.begin();
-    advance(it, i);
-    return *it;
 }
