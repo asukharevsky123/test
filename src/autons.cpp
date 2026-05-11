@@ -1,4 +1,4 @@
-#include "main.h"
+#include "mainEz.h"
 
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
