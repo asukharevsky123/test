@@ -208,11 +208,15 @@ void opcontrol() {
   // loop to continuously update motors
   while (true) {
     // get joystick positions
-    
-    int turn = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
-    int throttle = -controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y);
-    // move the chassis with curvature drive
-    chassis.arcade(turn, throttle);
+    if(controller.get_digital(E_CONTROLLER_DIGITAL_UP)){
+      chassis.tank(127,127);
+    }
+    else{
+      int turn = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+      int throttle = -controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y);
+      // move the chassis with curvature drive
+      chassis.arcade(turn, throttle);
+    }
     // delay to save resources
     delay(10);
   }
