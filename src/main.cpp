@@ -13,8 +13,8 @@ red = 100 rpm
 green = 200 rpm
 blue = 600 rpm
 */
-MotorGroup leftMotors({1, -3, 5}, MotorGearset::green);   // left motor group
-MotorGroup rightMotors({6, -8, 10}, MotorGearset::green); // right motor group
+MotorGroup leftMotors({1, 5}, MotorGearset::green);   // left motor group
+MotorGroup rightMotors({11, 15}, MotorGearset::green); // right motor group
 
 // parameter variables
 int inertial_sensor_port(12);
@@ -22,15 +22,13 @@ int inertial_sensor_port(12);
 int horizontal_tracking_wheel_port(19);
 int vertical_tracking_wheel_port(-11);
 
-float horizontal_tracking_wheel_offset(
-    -5.75); // in inches, negative if the wheel is to the back of the tracking
+float horizontal_tracking_wheel_offset(-5.75); // in inches, negative if the wheel is to the back of the tracking
             // center, positive if it's to the front
 float vertical_tracking_wheel_offset(-2.5); // in inches, negative if the wheel
 
-int track_width(15); // in inches
+float track_width(12.5); // in inches
 int drivetrain_rpm(200);
-int horizontal_drift(
-    2); // higher values make the robot move faster but causes more overshoot on
+int horizontal_drift(2); // higher values make the robot move faster but causes more overshoot on
         // turns. Recommended value of 2 if not using traction wheels, 8 if
         // using traction wheels
 
@@ -38,13 +36,12 @@ int horizontal_drift(
 float linear_PID[3] = {10, 0, 25.5}; // kP, kI, kD for linear motion
 float angular_PID[3] = {2, 0, 10.5}; // kP, kI, kD for angular motion
 
-float throttle_curve[3] = {
-    3, 10, 1.019}; // joystick deadband out of 127, minimum output where
+float throttle_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where
                    // drivetrain will move out of 127, expo curve gain
-float steer_curve[3] = {
-    3, 10, 1.019}; // joystick deadband out of 127, minimum output where
+float steer_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where
                    // drivetrain will move out of 127, expo curve gain
 
+/*
 // Inertial Sensor on port
 Imu imu(inertial_sensor_port);
 
@@ -61,7 +58,7 @@ TrackingWheel horizontal(&horizontalEnc, Omniwheel::NEW_275,
 // (negative)
 TrackingWheel vertical(&verticalEnc, Omniwheel::NEW_275,
                        vertical_tracking_wheel_offset);
-
+*/
 // drivetrain settings
 Drivetrain drivetrain(&leftMotors,  // left motor group
                       &rightMotors, // right motor group
@@ -94,7 +91,7 @@ ControllerSettings
                       500, // large error range timeout, in milliseconds
                       0    // maximum acceleration (slew)
     );
-
+/*
 // sensors for odometry
 OdomSensors sensors(&vertical, // vertical tracking wheel
                     nullptr, // vertical tracking wheel 2, set to nullptr as we
@@ -104,7 +101,7 @@ OdomSensors sensors(&vertical, // vertical tracking wheel
                              // we don't have a second one
                     &imu     // inertial sensor
 );
-
+*/
 // input curve for throttle input during driver control
 ExpoDriveCurve throttleCurve(
     throttle_curve[0], // joystick deadband out of 127
@@ -120,7 +117,8 @@ ExpoDriveCurve steerCurve(
 );
 
 // create the chassis
-Chassis chassis(drivetrain, linearController, angularController, sensors,
+// change OdomSensors to sensors when you get odom
+Chassis chassis(drivetrain, linearController, angularController, OdomSensors{nullptr, nullptr, nullptr, nullptr, nullptr},
                 &throttleCurve, &steerCurve);
 
 /**
@@ -210,10 +208,11 @@ void opcontrol() {
   // loop to continuously update motors
   while (true) {
     // get joystick positions
-    int leftY = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
-    int rightX = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+    
+    int turn = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+    int throttle = -controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y);
     // move the chassis with curvature drive
-    chassis.arcade(leftY, rightX);
+    chassis.arcade(turn, throttle);
     // delay to save resources
     delay(10);
   }
