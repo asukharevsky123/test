@@ -41,10 +41,10 @@ float throttle_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minim
 float steer_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where
                    // drivetrain will move out of 127, expo curve gain
 
-/*
+
 // Inertial Sensor on port
 Imu imu(inertial_sensor_port);
-
+/*
 // tracking wheels
 // horizontal tracking wheel encoder. Rotation sensor, port 20, not reversed
 Rotation horizontalEnc(horizontal_tracking_wheel_port);
@@ -91,17 +91,17 @@ ControllerSettings
                       500, // large error range timeout, in milliseconds
                       0    // maximum acceleration (slew)
     );
-/*
+
 // sensors for odometry
-OdomSensors sensors(&vertical, // vertical tracking wheel
+OdomSensors sensors(nullptr,//&vertical, // vertical tracking wheel
                     nullptr, // vertical tracking wheel 2, set to nullptr as we
                              // don't have a second one
-                    &horizontal, // horizontal tracking wheel
+                    nullptr,//&horizontal, // horizontal tracking wheel
                     nullptr, // horizontal tracking wheel 2, set to nullptr as
                              // we don't have a second one
                     &imu     // inertial sensor
 );
-*/
+
 // input curve for throttle input during driver control
 ExpoDriveCurve throttleCurve(
     throttle_curve[0], // joystick deadband out of 127
@@ -117,8 +117,7 @@ ExpoDriveCurve steerCurve(
 );
 
 // create the chassis
-// change OdomSensors to sensors when you get odom
-Chassis chassis(drivetrain, linearController, angularController, OdomSensors{nullptr, nullptr, nullptr, nullptr, nullptr},
+Chassis chassis(drivetrain, linearController, angularController, sensors,
                 &throttleCurve, &steerCurve);
 
 /**
@@ -181,23 +180,26 @@ ASSET(path_section_1_5_txt);
  * features LemLib has to offer
  */
 void autonomous() {
+  /*
   chassis.setPose(-59.871, 2.42, 77.82);
   //chassis.follow(entire_path_1_txt, 15,2000); // follow the path with the robot's heading tangent to the path
-  chassis.follow(path_section_1_1_txt, 15, 2000); // goes to red scoring
+  chassis.follow(path_section_1_1_txt, 15, 3000); // goes to red scoring
   //scores preload
   
-  chassis.follow(path_section_1_2_txt, 15, 2000); //goes to pick up blue/red cone
+  chassis.follow(path_section_1_2_txt, 15, 3000); //goes to pick up blue/red cone
   //picks up cone
 
-  chassis.follow(path_section_1_3_txt, 15, 2000); // goes to red scoring
+  chassis.follow(path_section_1_3_txt, 15, 3000); // goes to red scoring
   //scores cone
 
-  chassis.follow(path_section_1_4_txt, 15, 2000); // goes to pick up red/yellow cone
+  chassis.follow(path_section_1_4_txt, 15, 3000); // goes to pick up red/yellow cone
   //picks up cone
   
-  chassis.follow(path_section_1_5_txt, 15, 2000); // goes to red scoring
+  chassis.follow(path_section_1_5_txt, 15, 3000); // goes to red scoring
   //scores cone
-  
+  */
+  chassis.setPose(0,0,0);
+  chassis.moveToPoint(0,24,2000);
 }
 
 /**
@@ -208,15 +210,10 @@ void opcontrol() {
   // loop to continuously update motors
   while (true) {
     // get joystick positions
-    if(controller.get_digital(E_CONTROLLER_DIGITAL_UP)){
-      chassis.tank(127,127);
-    }
-    else{
-      int turn = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
-      int throttle = -controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y);
+    int turn = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+    int throttle = -controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
       // move the chassis with curvature drive
-      chassis.arcade(turn, throttle);
-    }
+    chassis.arcade(turn, throttle);
     // delay to save resources
     delay(10);
   }
