@@ -35,8 +35,8 @@ int horizontal_drift(
         // using traction wheels
 
 // parameter lists
-float linear_PID[3] = {10, 0, 25}; // kP, kI, kD for linear motion
-float angular_PID[3] = {2, 0, 30}; // kP, kI, kD for angular motion
+float linear_PID[3] = {10, 0, 25};  // kP, kI, kD for linear motion
+float angular_PID[3] = {2, 0, 100}; // kP, kI, kD for angular motion
 
 float throttle_curve[3] = {
     3, 10, 1.019}; // joystick deadband out of 127, minimum output where
@@ -74,12 +74,12 @@ ControllerSettings
     linearController(linear_PID[0], // proportional gain (kP)
                      linear_PID[1], // integral gain (kI)
                      linear_PID[2], // derivative gain (kD)
-                     0,             // anti windup
-                     0,             // small error range, in inches
-                     0, // small error range timeout, in milliseconds
-                     0, // large error range, in inches
-                     0, // large error range timeout, in milliseconds
-                     0  // maximum acceleration (slew)
+                     3,             // anti windup
+                     1,             // small error range, in inches
+                     100, // small error range timeout, in milliseconds
+                     3,   // large error range, in inches
+                     500, // large error range timeout, in milliseconds
+                     0    // maximum acceleration (slew)
     );
 
 // angular motion controller
@@ -87,12 +87,12 @@ ControllerSettings
     angularController(angular_PID[0], // proportional gain (kP)
                       angular_PID[1], // integral gain (kI)
                       angular_PID[2], // derivative gain (kD)
-                      0,              // anti windup
-                      0,              // small error range, in degrees
-                      0, // small error range timeout, in milliseconds
-                      0, // large error range, in degrees
-                      0, // large error range timeout, in milliseconds
-                      0  // maximum acceleration (slew)
+                      3,              // anti windup
+                      3,              // small error range, in degrees
+                      100, // small error range timeout, in milliseconds
+                      8,   // large error range, in degrees
+                      500, // large error range timeout, in milliseconds
+                      40   // slew rate — limits how fast motor power can change
     );
 
 // sensors for odometry
@@ -206,9 +206,11 @@ void autonomous() {
   chassis.follow(path_section_1_5_txt, 15, 3000); // goes to red scoring
   //scores cone
   */
+  delay(5000);
   chassis.setPose(0, 0, 0);
   // chassis.moveToPoint(40,0,2000);
-  chassis.turnToHeading(90, 2000);
+  chassis.turnToHeading(90, 4000,
+                        {.maxSpeed = 40}); // capped speed to prevent overshoot
 }
 
 /*
