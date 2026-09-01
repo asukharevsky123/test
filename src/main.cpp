@@ -35,8 +35,8 @@ int horizontal_drift(
         // using traction wheels
 
 // parameter lists
-float linear_PID[3] = {10, 0, 25};  // kP, kI, kD for linear motion
-float angular_PID[3] = {2, 0, 100}; // kP, kI, kD for angular motion
+float linear_PID[3] = {10, 0, 25}; // kP, kI, kD for linear motion
+float angular_PID[3] = {5, 0, 15}; // kP, kI, kD for angular motion
 
 float throttle_curve[3] = {
     3, 10, 1.019}; // joystick deadband out of 127, minimum output where
@@ -74,12 +74,12 @@ ControllerSettings
     linearController(linear_PID[0], // proportional gain (kP)
                      linear_PID[1], // integral gain (kI)
                      linear_PID[2], // derivative gain (kD)
-                     3,             // anti windup
-                     1,             // small error range, in inches
-                     100, // small error range timeout, in milliseconds
-                     3,   // large error range, in inches
-                     500, // large error range timeout, in milliseconds
-                     0    // maximum acceleration (slew)
+                     0,             // anti windup
+                     0,             // small error range, in inches
+                     0, // small error range timeout, in milliseconds
+                     0, // large error range, in inches
+                     0, // large error range timeout, in milliseconds
+                     0  // maximum acceleration (slew)
     );
 
 // angular motion controller
@@ -87,12 +87,12 @@ ControllerSettings
     angularController(angular_PID[0], // proportional gain (kP)
                       angular_PID[1], // integral gain (kI)
                       angular_PID[2], // derivative gain (kD)
-                      3,              // anti windup
-                      3,              // small error range, in degrees
-                      100, // small error range timeout, in milliseconds
-                      8,   // large error range, in degrees
-                      500, // large error range timeout, in milliseconds
-                      40   // slew rate — limits how fast motor power can change
+                      0,              // anti windup
+                      0,              // small error range, in degrees
+                      0, // small error range timeout, in milliseconds
+                      0, // large error range, in degrees
+                      0, // large error range timeout, in milliseconds
+                      0  // slew rate — limits how fast motor power can change
     );
 
 // sensors for odometry
@@ -129,29 +129,37 @@ Chassis chassis(drivetrain, linearController, angularController, sensors,
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
+
 void initialize() {
-  lcd::initialize();   // initialize brain screen
-  chassis.calibrate(); // calibrate sensors
+  lcd::initialize(); // initialize brain screen
 
-  // the default rate is 50. however, if you need to change the rate, you
-  // can do the following.
-  // bufferedStdout().setRate(...);
-  // If you use bluetooth or a wired connection, you will want to have a rate of
-  // 10ms
+  // Warn operator not to touch robot during IMU calibration
+  lcd::print(0, "CALIBRATING - DO NOT TOUCH");
+  chassis.calibrate(); // calibrate sensors (~3 seconds, robot must be still)
+  lcd::clear();
+  float init_theta = 1000000; // Reset on each initialize
 
-  // for more information on how the formatting for the loggers
-  // works, refer to the fmtlib docs
-
-  // thread to for brain screen and position logging
-  Task screenTask([&]() {
+  // FIX: Capture by value [=] or explicitly capture variables to ensure the
+  // task thread safely retains ownership of its memory context after
+  // initialize() ends.
+  Task screenTask([=]() mutable {
     while (true) {
-      // print robot location to the brain screen
-      lcd::print(0, "X: %f", chassis.getPose().x);         // x
-      lcd::print(1, "Y: %f", chassis.getPose().y);         // y
-      lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-      // log position telemetry
+      // Print robot location to the brain screen
+      /*
+      if (init_theta == 1000000) {
+        init_theta = chassis.getPose().theta;
+      }
+      */
+      lcd::print(0, "X: %f", chassis.getPose().x);
+      lcd::print(1, "Y: %f", chassis.getPose().y);
+      // lcd::print(2, "Theta: %f", chassis.getPose().theta);
+      //  lcd::print(3, "IMU raw: %f", imu.get_heading());
+      lcd::print(4, "Initial theta: %f", init_theta);
+
+      // Log pose data
       telemetrySink()->info("Chassis pose: {}", chassis.getPose());
-      // delay to save resources
+
+      // Delay to save resources
       delay(50);
     }
   });
@@ -206,11 +214,10 @@ void autonomous() {
   chassis.follow(path_section_1_5_txt, 15, 3000); // goes to red scoring
   //scores cone
   */
-  delay(5000);
+  delay(3000);
   chassis.setPose(0, 0, 0);
   // chassis.moveToPoint(40,0,2000);
-  chassis.turnToHeading(90, 4000,
-                        {.maxSpeed = 40}); // capped speed to prevent overshoot
+  chassis.turnToHeading(90, 10000);
 }
 
 /*
