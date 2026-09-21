@@ -1,6 +1,5 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
-#include <iostream>
 using namespace std;
 using namespace pros;
 using namespace lemlib;
@@ -13,8 +12,8 @@ red = 100 rpm
 green = 200 rpm
 blue = 600 rpm
 */
-MotorGroup leftMotors({-1, -5}, MotorGearset::green);  // left motor group
-MotorGroup rightMotors({11, 15}, MotorGearset::green); // right motor group
+MotorGroup rightMotors({-1, -5}, MotorGearset::green);  // right motor group
+MotorGroup leftMotors({11, 15}, MotorGearset::green); // left motor group
 
 // parameter variables
 int inertial_sensor_port(12);
@@ -22,8 +21,7 @@ int inertial_sensor_port(12);
 int horizontal_tracking_wheel_port(19);
 int vertical_tracking_wheel_port(-11);
 
-float horizontal_tracking_wheel_offset(
-    -5.75); // in inches, negative if the wheel is to the back of the tracking
+float horizontal_tracking_wheel_offset(-5.75); // in inches, negative if the wheel is to the back of the tracking
             // center, positive if it's to the front
 float vertical_tracking_wheel_offset(-2.5); // in inches, negative if the wheel
 
@@ -38,11 +36,9 @@ int horizontal_drift(
 float linear_PID[3] = {10, 0, 25}; // kP, kI, kD for linear motion
 float angular_PID[3] = {5, 0, 15}; // kP, kI, kD for angular motion
 
-float throttle_curve[3] = {
-    3, 10, 1.019}; // joystick deadband out of 127, minimum output where
+float throttle_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where
                    // drivetrain will move out of 127, expo curve gain
-float steer_curve[3] = {
-    3, 10, 1.019}; // joystick deadband out of 127, minimum output where
+float steer_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where
                    // drivetrain will move out of 127, expo curve gain
 
 // Inertial Sensor on port
@@ -129,40 +125,29 @@ Chassis chassis(drivetrain, linearController, angularController, sensors,
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
-
 void initialize() {
-  lcd::initialize(); // initialize brain screen
+    lcd::initialize();   // initialize brain screen
+    chassis.calibrate(); // calibrate sensors (~3 seconds, robot must be still)
+    
+    // the default rate is 50. however, if you need to change the rate, you
+    // can do the following.
+    // bufferedStdout().setRate(...);
+    // If you use bluetooth or a wired connection, you will want to have a rate of
+    // 10ms
 
-  // Warn operator not to touch robot during IMU calibration
-  lcd::print(0, "CALIBRATING - DO NOT TOUCH");
-  chassis.calibrate(); // calibrate sensors (~3 seconds, robot must be still)
-  lcd::clear();
-  float init_theta = 1000000; // Reset on each initialize
+    // for more information on how the formatting for the loggers
+    // works, refer to the fmtlib docs
 
-  // FIX: Capture by value [=] or explicitly capture variables to ensure the
-  // task thread safely retains ownership of its memory context after
-  // initialize() ends.
-  Task screenTask([=]() mutable {
-    while (true) {
-      // Print robot location to the brain screen
-      /*
-      if (init_theta == 1000000) {
-        init_theta = chassis.getPose().theta;
-      }
-      */
-      lcd::print(0, "X: %f", chassis.getPose().x);
-      lcd::print(1, "Y: %f", chassis.getPose().y);
-      // lcd::print(2, "Theta: %f", chassis.getPose().theta);
-      //  lcd::print(3, "IMU raw: %f", imu.get_heading());
-      lcd::print(4, "Initial theta: %f", init_theta);
-
-      // Log pose data
-      telemetrySink()->info("Chassis pose: {}", chassis.getPose());
-
-      // Delay to save resources
-      delay(50);
-    }
-  });
+    // thread to for brain screen and position logging
+    Task screenTask([&]() {
+        while (true) {
+            // print robot location to the brain screen
+            lcd::print(0, "X: %f", chassis.getPose().x);         // x
+            lcd::print(1, "Y: %f", chassis.getPose().y);         // y
+            lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+            delay(50);
+        }
+    });
 }
 
 /**
