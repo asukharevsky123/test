@@ -27,8 +27,7 @@ float vertical_tracking_wheel_offset(-2.5); // in inches, negative if the wheel
 
 float track_width(12.5); // in inches
 int drivetrain_rpm(200);
-int horizontal_drift(
-    2); // higher values make the robot move faster but causes more overshoot on
+int horizontal_drift(2); // higher values make the robot move faster but causes more overshoot on
         // turns. Recommended value of 2 if not using traction wheels, 8 if
         // using traction wheels
 
@@ -83,11 +82,11 @@ ControllerSettings
     angularController(angular_PID[0], // proportional gain (kP)
                       angular_PID[1], // integral gain (kI)
                       angular_PID[2], // derivative gain (kD)
-                      0,              // anti windup
-                      0,              // small error range, in degrees
-                      0, // small error range timeout, in milliseconds
-                      0, // large error range, in degrees
-                      0, // large error range timeout, in milliseconds
+                      3,              // anti windup
+                      1,              // small error range, in degrees
+                      100, // small error range timeout, in milliseconds
+                      3, // large error range, in degrees
+                      500, // large error range timeout, in milliseconds
                       0  // slew rate — limits how fast motor power can change
     );
 
@@ -213,7 +212,7 @@ void opcontrol() {
   // loop to continuously update motors
   while (true) {
     // get joystick positions
-    int turn = -controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+    int turn = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
     int throttle = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y);
     // move the chassis with curvature drive
     chassis.arcade(throttle, turn);
