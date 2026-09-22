@@ -32,8 +32,8 @@ int horizontal_drift(2); // higher values make the robot move faster but causes 
         // using traction wheels
 
 // parameter lists
-float linear_PID[3] = {10, 0, 25}; // kP, kI, kD for linear motion
-float angular_PID[3] = {5, 0, 15}; // kP, kI, kD for angular motion
+float linear_PID[3] = {10, 2, 11}; // kP, kI, kD for linear motion
+float angular_PID[3] = {5, -2, 15}; // kP, kI, kD for angular motion
 
 float throttle_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where
                    // drivetrain will move out of 127, expo curve gain
@@ -69,12 +69,12 @@ ControllerSettings
     linearController(linear_PID[0], // proportional gain (kP)
                      linear_PID[1], // integral gain (kI)
                      linear_PID[2], // derivative gain (kD)
-                     0,             // anti windup
-                     0,             // small error range, in inches
-                     0, // small error range timeout, in milliseconds
-                     0, // large error range, in inches
-                     0, // large error range timeout, in milliseconds
-                     0  // maximum acceleration (slew)
+                     3, // anti windup
+                     1, // small error range, in inches
+                     100, // small error range timeout, in milliseconds
+                     3, // large error range, in inches
+                     500, // large error range timeout, in milliseconds
+                     20 // maximum acceleration (slew)
     );
 
 // angular motion controller
@@ -198,10 +198,9 @@ void autonomous() {
   chassis.follow(path_section_1_5_txt, 15, 3000); // goes to red scoring
   //scores cone
   */
-  delay(3000);
   chassis.setPose(0, 0, 0);
-  // chassis.moveToPoint(40,0,2000);
-  chassis.turnToHeading(90, 10000);
+  chassis.moveToPoint(0, 24, 10000);
+  //chassis.turnToHeading(90, 10000);
 }
 
 /*
