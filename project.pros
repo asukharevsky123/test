@@ -635,7 +635,8 @@
       }
     },
     "upload_options": {
-      "description": "BISBotics"
+      "description": "BISBotics",
+      "icon": "power"
     },
     "use_early_access": false
   }
