@@ -14,6 +14,7 @@ blue = 600 rpm
 */
 MotorGroup rightMotors({-1, -5}, MotorGearset::green);  // right motor group
 MotorGroup leftMotors({11, 15}, MotorGearset::green); // left motor group
+MotorGroup fourBar({10,-11}, MotorGearset::green); // four bar lift
 
 // parameter variables
 int inertial_sensor_port(12);
@@ -213,8 +214,12 @@ void opcontrol() {
     // get joystick positions
     int turn = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
     int throttle = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y);
+
+    int fourBar_up = controller.get_digital(E_CONTROLLER_DIGITAL_L1);
+    int fourBar_down = controller.get_digital(E_CONTROLLER_DIGITAL_L2);
     // move the chassis with curvature drive
     chassis.arcade(throttle, turn);
+    fourBar.move(fourBar_up - fourBar_down);
     // delay to save resources
     delay(10);
   }
