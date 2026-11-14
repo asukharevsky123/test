@@ -211,6 +211,7 @@ void autonomous() {
 void opcontrol() {
   // controller
   // loop to continuously update motors
+  int speed(1);
   while (true) {
     // get joystick positions
     int turn = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
@@ -223,9 +224,9 @@ void opcontrol() {
     int claw_close = controller.get_digital(E_CONTROLLER_DIGITAL_R2);
     // move the chassis with curvature drive
     chassis.arcade(throttle, turn);
-    if (fourBar_up - fourBar_down != 0) fourBar.move((fourBar_up - fourBar_down)*100);
+    if (fourBar_up - fourBar_down != 0) fourBar.move((fourBar_up - fourBar_down)*100*speed);
     else fourBar.brake();
-    claw.move((claw_open - claw_close)*100);
+    claw.move((claw_open - claw_close)*100*speed);
     // delay to save resources
     delay(10);
   }
