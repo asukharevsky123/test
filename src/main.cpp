@@ -15,7 +15,6 @@ blue = 600 rpm
 MotorGroup rightMotors({-1, -11}, MotorGearset::green);  // right motor group
 MotorGroup leftMotors({2,20}, MotorGearset::green); // left motor group
 MotorGroup fourBar({3,-9}, MotorGearset::green); // four bar lift
-
 Motor claw(5, MotorGearset::green); // claw motor
 
 // parameter variables
@@ -147,8 +146,8 @@ void initialize() {
             lcd::print(0, "X: %f", chassis.getPose().x);         // x
             lcd::print(1, "Y: %f", chassis.getPose().y);         // y
             lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            lcd::print(4,"FourBar: %f",  E_CONTROLLER_DIGITAL_L1-E_CONTROLLER_DIGITAL_L2);
-            lcd::print(5,"Claw: %f", E_CONTROLLER_DIGITAL_R1-E_CONTROLLER_DIGITAL_R2);
+            lcd::print(4, "FourBar: %d", controller.get_digital(E_CONTROLLER_DIGITAL_L1) - controller.get_digital(E_CONTROLLER_DIGITAL_L2));
+            lcd::print(5, "Claw: %d", controller.get_digital(E_CONTROLLER_DIGITAL_R1) - controller.get_digital(E_CONTROLLER_DIGITAL_R2));
             //lcd::print(6")
             delay(50);
         }
@@ -224,8 +223,9 @@ void opcontrol() {
     int claw_close = controller.get_digital(E_CONTROLLER_DIGITAL_R2);
     // move the chassis with curvature drive
     chassis.arcade(throttle, turn);
-    fourBar.move(fourBar_up - fourBar_down);
-    claw.move(claw_open - claw_close);
+    if (fourBar_up - fourBar_down != 0) fourBar.move((fourBar_up - fourBar_down)*100);
+    else fourBar.brake();
+    claw.move((claw_open - claw_close)*100);
     // delay to save resources
     delay(10);
   }
