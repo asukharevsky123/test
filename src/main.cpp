@@ -1,5 +1,7 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
+#include "pros/misc.h"
+#include "pros/motors.h"
 using namespace std;
 using namespace pros;
 using namespace lemlib;
@@ -129,6 +131,7 @@ Chassis chassis(drivetrain, linearController, angularController, sensors,
 void initialize() {
     lcd::initialize();   // initialize brain screen
     chassis.calibrate(); // calibrate sensors (~3 seconds, robot must be still)
+    fourBar.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     
     // the default rate is 50. however, if you need to change the rate, you
     // can do the following.
@@ -211,20 +214,42 @@ void autonomous() {
 void opcontrol() {
   // controller
   // loop to continuously update motors
-  int speed(1);
+  float speed(1);
   while (true) {
     // get joystick positions
     int turn = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
     int throttle = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y);
 
-    int fourBar_up = controller.get_digital(E_CONTROLLER_DIGITAL_L1);
-    int fourBar_down = controller.get_digital(E_CONTROLLER_DIGITAL_L2);
+    int fourBar_down = controller.get_digital(E_CONTROLLER_DIGITAL_L1);
+    int fourBar_up = controller.get_digital(E_CONTROLLER_DIGITAL_L2);
 
-    int claw_open = controller.get_digital(E_CONTROLLER_DIGITAL_R1);
-    int claw_close = controller.get_digital(E_CONTROLLER_DIGITAL_R2);
+    int claw_close = controller.get_digital(E_CONTROLLER_DIGITAL_R1);
+    int claw_open = controller.get_digital(E_CONTROLLER_DIGITAL_R2);
+    int button = controller.get_digital(E_CONTROLLER_DIGITAL_X);
+    bool button_pressed(false);
+    if (button == 1){
+        if (!button_pressed){
+            if (speed==1) speed=0.1;
+            else speed = 1;
+            button_pressed = true;
+        }
+        else button_pressed = false;
+        
+    }
+
     // move the chassis with curvature drive
+
+    bool fourBar_moving(false);
+
     chassis.arcade(throttle, turn);
-    if (fourBar_up - fourBar_down != 0) fourBar.move((fourBar_up - fourBar_down)*100*speed);
+
+    if (controller.get_digital(E_CONTROLLER_DIGITAL_L1)== 0 and controller.get_digital(E_CONTROLLER_DIGITAL_L2)==0) fourBar_moving = false;
+    else fourBar_moving = true;
+
+    if (fourBar_moving) {
+        if (fourBar_up==1) fourBar.move(100*speed);
+        else if (fourBar_down==1) fourBar.move(-50*speed);
+    }
     else fourBar.brake();
     claw.move((claw_open - claw_close)*100*speed);
     // delay to save resources
