@@ -164,14 +164,14 @@ void competition_initialize() {}
 
 // get a path used for pure pursuit
 // this needs to be put outside a function
-/*
+
 ASSET(entire_path_1_txt);
 ASSET(path_section_1_1_txt);
 ASSET(path_section_1_2_txt);
 ASSET(path_section_1_3_txt);
 ASSET(path_section_1_4_txt);
 ASSET(path_section_1_5_txt);
-*/
+
 
 /**
  * Runs during auto
@@ -180,29 +180,26 @@ ASSET(path_section_1_5_txt);
  * features LemLib has to offer
  */
 void autonomous() {
-  /*
+  
   chassis.setPose(-59.871, 2.42, 77.82);
-  //chassis.follow(entire_path_1_txt, 15,2000); // follow the path with the
-  robot's heading tangent to the path chassis.follow(path_section_1_1_txt, 15,
-  3000); // goes to red scoring
+  //chassis.follow(entire_path_1_txt, 15,2000);
+  chassis.follow(path_section_1_1_txt, 15, 3000); // goes to red scoring
   //scores preload
 
-  chassis.follow(path_section_1_2_txt, 15, 3000); //goes to pick up blue/red
-  cone
+  chassis.follow(path_section_1_2_txt, 15, 3000); //goes to pick up blue/red cone
   //picks up cone
 
   chassis.follow(path_section_1_3_txt, 15, 3000); // goes to red scoring
   //scores cone
 
-  chassis.follow(path_section_1_4_txt, 15, 3000); // goes to pick up red/yellow
-  cone
+  chassis.follow(path_section_1_4_txt, 15, 3000); // goes to pick up red/yellow cone
   //picks up cone
 
   chassis.follow(path_section_1_5_txt, 15, 3000); // goes to red scoring
   //scores cone
-  */
-  chassis.setPose(0, 0, 0);
-  chassis.moveToPoint(0, 24, 10000);
+  
+  //chassis.setPose(0, 0, 0);
+  //chassis.moveToPoint(0, 24, 10000);
   //chassis.turnToHeading(90, 10000);
 }
 
