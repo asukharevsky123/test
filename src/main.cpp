@@ -12,11 +12,11 @@ red = 100 rpm
 green = 200 rpm
 blue = 600 rpm
 */
-MotorGroup rightMotors({-1, -5}, MotorGearset::green);  // right motor group
-MotorGroup leftMotors({11, 15}, MotorGearset::green); // left motor group
-MotorGroup fourBar({10,-11}, MotorGearset::green); // four bar lift
+MotorGroup rightMotors({-1, -11}, MotorGearset::green);  // right motor group
+MotorGroup leftMotors({2,20}, MotorGearset::green); // left motor group
+MotorGroup fourBar({3,-9}, MotorGearset::green); // four bar lift
 
-Motor claw(3, MotorGearset::green); // claw motor
+Motor claw(5, MotorGearset::green); // claw motor
 
 // parameter variables
 int inertial_sensor_port(12);
@@ -147,6 +147,9 @@ void initialize() {
             lcd::print(0, "X: %f", chassis.getPose().x);         // x
             lcd::print(1, "Y: %f", chassis.getPose().y);         // y
             lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+            lcd::print(4,"FourBar: %f",  E_CONTROLLER_DIGITAL_L1-E_CONTROLLER_DIGITAL_L2);
+            lcd::print(5,"Claw: %f", E_CONTROLLER_DIGITAL_R1-E_CONTROLLER_DIGITAL_R2);
+            //lcd::print(6")
             delay(50);
         }
     });
@@ -180,7 +183,7 @@ ASSET(path_section_1_5_txt);
  * features LemLib has to offer
  */
 void autonomous() {
-  
+  /*
   chassis.setPose(-59.871, 2.42, 77.82);
   //chassis.follow(entire_path_1_txt, 15,2000);
   chassis.follow(path_section_1_1_txt, 15, 3000); // goes to red scoring
@@ -197,7 +200,7 @@ void autonomous() {
 
   chassis.follow(path_section_1_5_txt, 15, 3000); // goes to red scoring
   //scores cone
-  
+  */
   //chassis.setPose(0, 0, 0);
   //chassis.moveToPoint(0, 24, 10000);
   //chassis.turnToHeading(90, 10000);
