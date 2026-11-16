@@ -205,7 +205,7 @@ void autonomous() {
     chassis.setPose(0,0,0);
     chassis.moveToPoint(10, 0, 0);
     chassis.moveToPoint(-0.5, 0, 0);
-
+    /*
     fourBar.move(100);
     delay(100);
     fourBar.brake();
@@ -224,10 +224,11 @@ void autonomous() {
     fourBar.move(-50);
     delay(250);
     fourBar.brake();
-
+    */
     claw.move(-100);
     delay(500);
     claw.brake();
+
     //chassis.setPose(0, 0, 0);
     //chassis.moveToPoint(0, 24, 10000);
     //chassis.turnToHeading(90, 10000);
