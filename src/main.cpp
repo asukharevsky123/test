@@ -145,12 +145,25 @@ void initialize() {
     // thread to for brain screen and position logging
     Task screenTask([&]() {
         while (true) {
+            int button = controller.get_digital(E_CONTROLLER_DIGITAL_X);
+            bool button_pressed(false);
+            float speed(1);
+            if (button == 1){
+                if (!button_pressed){
+                    if (speed==1) speed=0.1;
+                    else speed = 1;
+                    button_pressed = true;
+                }
+                else button_pressed = false;
+                
+            }
             // print robot location to the brain screen
             lcd::print(0, "X: %f", chassis.getPose().x);         // x
             lcd::print(1, "Y: %f", chassis.getPose().y);         // y
             lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
             lcd::print(4, "FourBar: %d", controller.get_digital(E_CONTROLLER_DIGITAL_L1) - controller.get_digital(E_CONTROLLER_DIGITAL_L2));
             lcd::print(5, "Claw: %d", controller.get_digital(E_CONTROLLER_DIGITAL_R1) - controller.get_digital(E_CONTROLLER_DIGITAL_R2));
+            lcd::print(6, "Speed: %f", speed);
             //lcd::print(6")
             delay(50);
         }
