@@ -132,6 +132,7 @@ void initialize() {
     lcd::initialize();   // initialize brain screen
     chassis.calibrate(); // calibrate sensors (~3 seconds, robot must be still)
     fourBar.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    claw.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     
     // the default rate is 50. however, if you need to change the rate, you
     // can do the following.
@@ -183,12 +184,7 @@ void competition_initialize() {}
 // get a path used for pure pursuit
 // this needs to be put outside a function
 
-ASSET(entire_path_1_txt);
-ASSET(path_section_1_1_txt);
-ASSET(path_section_1_2_txt);
-ASSET(path_section_1_3_txt);
-ASSET(path_section_1_4_txt);
-ASSET(path_section_1_5_txt);
+ASSET(left_auton_path_1_txt);
 
 
 /**
@@ -198,27 +194,43 @@ ASSET(path_section_1_5_txt);
  * features LemLib has to offer
  */
 void autonomous() {
-  /*
-  chassis.setPose(-59.871, 2.42, 77.82);
-  //chassis.follow(entire_path_1_txt, 15,2000);
-  chassis.follow(path_section_1_1_txt, 15, 3000); // goes to red scoring
-  //scores preload
+    chassis.setPose(0,0,0);
+    chassis.moveToPoint(10, 0, 0);
+    chassis.moveToPoint(-0.5, 0, 0);
 
-  chassis.follow(path_section_1_2_txt, 15, 3000); //goes to pick up blue/red cone
-  //picks up cone
+    chassis.setPose(0,0,0);
+    chassis.moveToPoint(10, 0, 0);
+    chassis.moveToPoint(-0.5, 0, 0);
+    
+    chassis.setPose(0,0,0);
+    chassis.moveToPoint(10, 0, 0);
+    chassis.moveToPoint(-0.5, 0, 0);
 
-  chassis.follow(path_section_1_3_txt, 15, 3000); // goes to red scoring
-  //scores cone
+    fourBar.move(100);
+    delay(100);
+    fourBar.brake();
 
-  chassis.follow(path_section_1_4_txt, 15, 3000); // goes to pick up red/yellow cone
-  //picks up cone
+    claw.move(100);
+    delay(500);
+    claw.brake();
 
-  chassis.follow(path_section_1_5_txt, 15, 3000); // goes to red scoring
-  //scores cone
-  */
-  //chassis.setPose(0, 0, 0);
-  //chassis.moveToPoint(0, 24, 10000);
-  //chassis.turnToHeading(90, 10000);
+    fourBar.move(100);
+    delay(250);
+    fourBar.brake();
+
+    chassis.setPose(-60.479, 3.94, 66.835);
+    chassis.follow(left_auton_path_1_txt, 15, 3000); // goes to red scoring
+
+    fourBar.move(-50);
+    delay(250);
+    fourBar.brake();
+
+    claw.move(-100);
+    delay(500);
+    claw.brake();
+    //chassis.setPose(0, 0, 0);
+    //chassis.moveToPoint(0, 24, 10000);
+    //chassis.turnToHeading(90, 10000);
 }
 
 /*
