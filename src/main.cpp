@@ -195,18 +195,18 @@ ASSET(left_auton_path_1_txt);
  */
 void autonomous() {
     chassis.setPose(0,0,0);
-    chassis.moveToPoint(-10, 0, 0);
-    chassis.moveToPoint(0.5, 0, 0);
+    chassis.moveToPoint(-100, 0, 2000);
+    chassis.moveToPoint(0.5, 0, 2000);
 
     chassis.setPose(0,0,0);
-    chassis.moveToPoint(-10, 0, 0);
-    chassis.moveToPoint(0.5, 0, 0);
+    chassis.moveToPoint(-100, 0, 2000);
+    chassis.moveToPoint(0.5, 0, 2000);
     
     chassis.setPose(0,0,0);
-    chassis.moveToPoint(-10, 0, 0);
-    chassis.moveToPoint(0.5, 0, 0);
+    chassis.moveToPoint(-100, 0, 2000);
+    chassis.moveToPoint(0.5, 0, 2000);
     /*
-    fourBar.move(100);
+    fourBar.move(-100);
     delay(100);
     fourBar.brake();
 
@@ -214,21 +214,21 @@ void autonomous() {
     delay(500);
     claw.brake();
 
-    fourBar.move(100);
+    fourBar.move(-100);
     delay(250);
     fourBar.brake();
 
     chassis.setPose(-60.479, 3.94, 66.835);
     chassis.follow(left_auton_path_1_txt, 15, 3000); // goes to red scoring
 
-    fourBar.move(-50);
+    fourBar.move(20);
     delay(250);
     fourBar.brake();
-    
+    */
     claw.move(-100);
     delay(500);
     claw.brake();
-    */
+
     //chassis.setPose(0, 0, 0);
     //chassis.moveToPoint(0, 24, 10000);
     //chassis.turnToHeading(90, 10000);
@@ -238,54 +238,47 @@ void autonomous() {
  * Runs in driver control
  */
 void opcontrol() {
-    pros::Controller master(pros::E_CONTROLLER_MASTER);
-    int forward = 0;
-    int turn = 0;
-    bool lift = false;
-    bool lower = false;
-    bool open = false;
-    bool close = false;
-    float leftLiftPower = 0;
-    float rightLiftPower = 0;
-    bool highSens = false;
-    if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) highSens = !highSens;
-    
-    forward = master.get_analog(ANALOG_LEFT_Y); // Gets amount forward/backward from left joystick
-    turn = master.get_analog(ANALOG_RIGHT_X); // Gets the turn left/right from right joystick
-    lift = master.get_digital(pros::controller_digital_e_t::E_CONTROLLER_DIGITAL_L1);
-    lower = master.get_digital(pros::controller_digital_e_t::E_CONTROLLER_DIGITAL_L2);
-    open = master.get_digital(pros::controller_digital_e_t::E_CONTROLLER_DIGITAL_R1);
-    close = master.get_digital(pros::controller_digital_e_t::E_CONTROLLER_DIGITAL_R2);
-    int leftPower = forward + turn;
-    int rightPower = forward - turn;
-    if (lift && !lower) {
-        leftLiftPower = -100;
-        rightLiftPower = 100;
-    } else if (lower && !lift) {
-        leftLiftPower = 20;
-        rightLiftPower = -20;
-    } else {
-        leftLiftPower = 0;
-        rightLiftPower = 0;
+  // controller
+  // loop to continuously update motors
+  float speed(1);
+  while (true) {
+    // get joystick positions
+    int turn = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+    int throttle = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y);
+
+    int fourBar_down = controller.get_digital(E_CONTROLLER_DIGITAL_L1);
+    int fourBar_up = controller.get_digital(E_CONTROLLER_DIGITAL_L2);
+
+    int claw_close = controller.get_digital(E_CONTROLLER_DIGITAL_R1);
+    int claw_open = controller.get_digital(E_CONTROLLER_DIGITAL_R2);
+    int button = controller.get_digital(E_CONTROLLER_DIGITAL_X);
+    bool button_pressed(false);
+    if (button == 1){
+        if (!button_pressed){
+            if (speed==1) speed=0.1;
+            else speed = 1;
+            button_pressed = true;
+        }
+        else button_pressed = false;
+        
     }
-    if (highSens) {
-        leftPower = 0.33;
-        rightPower = 0.33;
-        leftLiftPower = 0.67;
-        rightLiftPower = 0.67;
+
+    // move the chassis with curvature drive
+
+    bool fourBar_moving(false);
+
+    chassis.arcade(throttle, turn);
+
+    if (controller.get_digital(E_CONTROLLER_DIGITAL_L1)== 0 and controller.get_digital(E_CONTROLLER_DIGITAL_L2)==0) fourBar_moving = false;
+    else fourBar_moving = true;
+
+    if (fourBar_moving) {
+        if (fourBar_up==1) fourBar.move(-100*speed);
+        else if (fourBar_down==1) fourBar.move(20*speed);
     }
-    if (open && !close) {
-        claw.move_velocity(-100);
-    } else if (close && !open) {
-        claw.move_velocity(100);
-    } else {
-        claw.brake();
-    }
-    chassis.tank(leftPower, rightPower);
-    if (leftLiftPower == 0 && rightLiftPower == 0) {
-        fourBar.brake();
-    } else {
-        fourBar.move(leftLiftPower);
-    }
-    delay(20);
+    else fourBar.brake();
+    claw.move((claw_open - claw_close)*100*speed);
+    // delay to save resources
+    delay(10);
+  }
 }
