@@ -44,6 +44,8 @@ float throttle_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minim
 float steer_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where
                    // drivetrain will move out of 127, expo curve gain
 
+float speed(1); // speed multiplier for driver control, 1 is normal speed, 0.33 is slow speed
+
 // Inertial Sensor on port
 Imu imu(inertial_sensor_port);
 /*
@@ -146,18 +148,6 @@ void initialize() {
     // thread to for brain screen and position logging
     Task screenTask([&]() {
         while (true) {
-            int button = controller.get_digital(E_CONTROLLER_DIGITAL_X);
-            bool button_pressed(false);
-            float speed(1);
-            if (button == 1){
-                if (!button_pressed){
-                    if (speed==1) speed=0.1;
-                    else speed = 1;
-                    button_pressed = true;
-                }
-                else button_pressed = false;
-                
-            }
             // print robot location to the brain screen
             lcd::print(0, "X: %f", chassis.getPose().x);         // x
             lcd::print(1, "Y: %f", chassis.getPose().y);         // y
@@ -195,16 +185,16 @@ ASSET(left_auton_path_1_txt);
  */
 void autonomous() {
     chassis.setPose(0,0,0);
-    chassis.moveToPoint(-100, 0, 2000);
-    chassis.moveToPoint(0.5, 0, 2000);
+    chassis.moveToPoint(0, 36, 1200, {.minSpeed = 100});
+    chassis.moveToPoint(0, 12, 1000, {.forwards = false});
 
     chassis.setPose(0,0,0);
-    chassis.moveToPoint(-100, 0, 2000);
-    chassis.moveToPoint(0.5, 0, 2000);
+    chassis.moveToPoint(0, 36, 1200, {.minSpeed = 100});
+    chassis.moveToPoint(0, 12, 1000, {.forwards = false});
     
     chassis.setPose(0,0,0);
-    chassis.moveToPoint(-100, 0, 2000);
-    chassis.moveToPoint(0.5, 0, 2000);
+    chassis.moveToPoint(0, 36, 1200, {.minSpeed = 100});
+    chassis.moveToPoint(0, 12, 1000, {.forwards = false});
     /*
     fourBar.move(-100);
     delay(100);
@@ -240,7 +230,6 @@ void autonomous() {
 void opcontrol() {
   // controller
   // loop to continuously update motors
-  float speed(1);
   while (true) {
     // get joystick positions
     int turn = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
@@ -251,23 +240,17 @@ void opcontrol() {
 
     int claw_close = controller.get_digital(E_CONTROLLER_DIGITAL_R1);
     int claw_open = controller.get_digital(E_CONTROLLER_DIGITAL_R2);
-    int button = controller.get_digital(E_CONTROLLER_DIGITAL_X);
-    bool button_pressed(false);
-    if (button == 1){
-        if (!button_pressed){
-            if (speed==1) speed=0.1;
-            else speed = 1;
-            button_pressed = true;
-        }
-        else button_pressed = false;
-        
+    int button = controller.get_digital_new_press(E_CONTROLLER_DIGITAL_X);
+    if (button==1){
+        if (speed==1) speed=0.33;
+        else speed = 1;
     }
 
     // move the chassis with curvature drive
 
     bool fourBar_moving(false);
 
-    chassis.arcade(throttle, turn);
+    chassis.arcade(throttle*speed, turn*speed);
 
     if (controller.get_digital(E_CONTROLLER_DIGITAL_L1)== 0 and controller.get_digital(E_CONTROLLER_DIGITAL_L2)==0) fourBar_moving = false;
     else fourBar_moving = true;
@@ -277,7 +260,10 @@ void opcontrol() {
         else if (fourBar_down==1) fourBar.move(20*speed);
     }
     else fourBar.brake();
-    claw.move((claw_open - claw_close)*100*speed);
+    if (claw_open == 1 or claw_close == 1) {
+        claw.move((claw_open - claw_close) * 100 * speed);
+    }
+    else claw.brake();
     // delay to save resources
     delay(10);
   }
