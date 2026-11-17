@@ -133,8 +133,8 @@ Chassis chassis(drivetrain, linearController, angularController, sensors,
 void initialize() {
     lcd::initialize();   // initialize brain screen
     chassis.calibrate(); // calibrate sensors (~3 seconds, robot must be still)
-    fourBar.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    claw.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    fourBar.set_brake_mode_all(E_MOTOR_BRAKE_HOLD);
+    claw.set_brake_mode(E_MOTOR_BRAKE_HOLD);
     
     // the default rate is 50. however, if you need to change the rate, you
     // can do the following.
