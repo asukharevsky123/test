@@ -198,17 +198,29 @@ ASSET(left_auton_path_1_txt);
  * features LemLib has to offer
  */
 void autonomous() {
+    fourBar.move(100);
+    delay(750);
+    fourBar.brake();
+    delay(250);
+    
     chassis.setPose(0,0,0);
-    chassis.moveToPoint(0, 36, 1200, {.minSpeed = 100});
-    chassis.moveToPoint(0, 12, 1000, {.forwards = false});
+    chassis.moveToPoint(0, -10, 1200, {.minSpeed = 80});
+    delay(250);
+    chassis.moveToPoint(0, 0, 1000, {.forwards = false});
+    delay(250);
 
     //chassis.setPose(0,0,0);
-    chassis.moveToPoint(0, 36, 1200, {.minSpeed = 100});
-    chassis.moveToPoint(0, 12, 1000, {.forwards = false});
+    chassis.moveToPoint(0, -10, 1200, {.minSpeed = 80});
+    delay(250);
+    chassis.moveToPoint(0, 0, 1000, {.forwards = false});
+    delay(250);
     
     //chassis.setPose(0,0,0);
-    chassis.moveToPoint(0, 36, 1200, {.minSpeed = 100});
-    chassis.moveToPoint(0, 12, 1000, {.forwards = false});
+    chassis.moveToPoint(0, -10, 1200, {.minSpeed = 80});
+    delay(250);
+    chassis.moveToPoint(0, 0, 1000, {.forwards = false});
+    delay(250);
+    
     /*
     fourBar.move(100);
     delay(100);
