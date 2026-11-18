@@ -16,7 +16,7 @@ blue = 600 rpm
 */
 MotorGroup rightMotors({-1, -11}, MotorGearset::green);  // right motor group
 MotorGroup leftMotors({2,20}, MotorGearset::green); // left motor group
-MotorGroup fourBar({3,-9}, MotorGearset::green); // four bar lift
+MotorGroup fourBar({-3,9}, MotorGearset::green); // four bar lift
 Motor claw(5, MotorGearset::green); // claw motor
 
 // parameter variables
@@ -44,7 +44,7 @@ float throttle_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minim
 float steer_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where
                    // drivetrain will move out of 127, expo curve gain
 
-float speed(1); // speed multiplier for driver control, 1 is normal speed, 0.33 is slow speed
+bool highSens(true);
 
 // Inertial Sensor on port
 Imu imu(inertial_sensor_port);
@@ -154,7 +154,7 @@ void initialize() {
             lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
             lcd::print(4, "FourBar: %d", controller.get_digital(E_CONTROLLER_DIGITAL_L1) - controller.get_digital(E_CONTROLLER_DIGITAL_L2));
             lcd::print(5, "Claw: %d", controller.get_digital(E_CONTROLLER_DIGITAL_R1) - controller.get_digital(E_CONTROLLER_DIGITAL_R2));
-            lcd::print(6, "Speed: %f", speed);
+            lcd::print(6, "HighSens: %s", highSens ? "true" : "false");
             //lcd::print(6")
             delay(50);
         }
@@ -196,7 +196,7 @@ void autonomous() {
     chassis.moveToPoint(0, 36, 1200, {.minSpeed = 100});
     chassis.moveToPoint(0, 12, 1000, {.forwards = false});
     /*
-    fourBar.move(-100);
+    fourBar.move(100);
     delay(100);
     fourBar.brake();
 
@@ -204,14 +204,14 @@ void autonomous() {
     delay(500);
     claw.brake();
 
-    fourBar.move(-100);
+    fourBar.move(100);
     delay(250);
     fourBar.brake();
 
     chassis.setPose(-60.479, 3.94, 66.835);
     chassis.follow(left_auton_path_1_txt, 15, 3000); // goes to red scoring
 
-    fourBar.move(20);
+    fourBar.move(-20);
     delay(250);
     fourBar.brake();
     */
@@ -235,33 +235,39 @@ void opcontrol() {
     int turn = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_X);
     int throttle = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y);
 
-    int fourBar_down = controller.get_digital(E_CONTROLLER_DIGITAL_L1);
-    int fourBar_up = controller.get_digital(E_CONTROLLER_DIGITAL_L2);
+    int fourBar_up = controller.get_digital(E_CONTROLLER_DIGITAL_L1);
+    int fourBar_down = controller.get_digital(E_CONTROLLER_DIGITAL_L2);
 
-    int claw_close = controller.get_digital(E_CONTROLLER_DIGITAL_R1);
-    int claw_open = controller.get_digital(E_CONTROLLER_DIGITAL_R2);
+    int claw_open = controller.get_digital(E_CONTROLLER_DIGITAL_R1);
+    int claw_close = controller.get_digital(E_CONTROLLER_DIGITAL_R2);
     int button = controller.get_digital_new_press(E_CONTROLLER_DIGITAL_X);
     if (button==1){
-        if (speed==1) speed=0.33;
-        else speed = 1;
+        if (highSens==true) highSens=false;
+        else highSens = true;
     }
 
     // move the chassis with curvature drive
 
     bool fourBar_moving(false);
-
-    chassis.arcade(throttle*speed, turn*speed);
+    if (highSens) chassis.arcade(throttle, turn);
+    else chassis.arcade(throttle/2, turn/2);
 
     if (controller.get_digital(E_CONTROLLER_DIGITAL_L1)== 0 and controller.get_digital(E_CONTROLLER_DIGITAL_L2)==0) fourBar_moving = false;
     else fourBar_moving = true;
 
     if (fourBar_moving) {
-        if (fourBar_up==1) fourBar.move(-100*speed);
-        else if (fourBar_down==1) fourBar.move(20*speed);
+        if (highSens){
+            if (fourBar_up==1) fourBar.move(100);
+            else if (fourBar_down==1) fourBar.move(-20);
+        }
+        else {
+            if (fourBar_up==1) fourBar.move(75);
+            else if (fourBar_down==1) fourBar.move(-10);
+        }
     }
     else fourBar.brake();
     if (claw_open == 1 or claw_close == 1) {
-        claw.move((claw_open - claw_close) * 100 * speed);
+        claw.move((claw_open - claw_close) * 100);
     }
     else claw.brake();
     // delay to save resources
