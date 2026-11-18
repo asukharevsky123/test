@@ -160,7 +160,7 @@ void initialize() {
             lcd::print(0, "X: %f", chassis.getPose().x);         // x
             lcd::print(1, "Y: %f", chassis.getPose().y);         // y
             lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            lcd::print(4,"Motor Temps: RF: %f, RB: %f, LF: %f, LB: %f, 4BR: %f, 4BL: %f, Claw: %f", motor_temps[0], motor_temps[1], motor_temps[2], motor_temps[3], motor_temps[4], motor_temps[5], motor_temps[6]);
+            lcd::print(4, "RF: %.0f, RB: %.0f, LF: %.0f, LB: %.0f, 4BR: %.0f, 4BL: %.0f, Claw: %f", motor_temps[0], motor_temps[1], motor_temps[2], motor_temps[3], motor_temps[4], motor_temps[5], motor_temps[6]);
             lcd::print(6, "FourBar: %d", controller.get_digital(E_CONTROLLER_DIGITAL_L1) - controller.get_digital(E_CONTROLLER_DIGITAL_L2));
             lcd::print(7, "Claw: %d", controller.get_digital(E_CONTROLLER_DIGITAL_R1) - controller.get_digital(E_CONTROLLER_DIGITAL_R2));
             lcd::print(8, "HighSens: %s", highSens ? "true" : "false");
