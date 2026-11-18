@@ -156,13 +156,15 @@ void initialize() {
         while (true) {
             // print robot location to the brain screen
             double motor_temps[7] = {rightFront.get_temperature(), rightBack.get_temperature(), leftFront.get_temperature(), leftBack.get_temperature(), fourBar_right.get_temperature(), fourBar_left.get_temperature(), claw.get_temperature()};
-
+            for (int temp(0); temp<7; temp++){
+                motor_temps[temp] = motor_temps[temp]*9/5 + 32; // convert to fahrenheit
+            }
             lcd::print(0, "X: %f", chassis.getPose().x);         // x
             lcd::print(1, "Y: %f", chassis.getPose().y);         // y
             lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
             
             lcd::print(4, "RF: %.0f, RB: %.0f, LF: %.0f, LB: %.0f", motor_temps[0], motor_temps[1], motor_temps[2], motor_temps[3]);
-            lcd::print(5, "4BR: %.0f, 4BL: %.0f, Claw: %f",motor_temps[4], motor_temps[5], motor_temps[6]);
+            lcd::print(5, "4BR: %.0f, 4BL: %.0f, Claw: %.0f",motor_temps[4], motor_temps[5], motor_temps[6]);
             
             lcd::print(7, "FourBar: %d", controller.get_digital(E_CONTROLLER_DIGITAL_L1) - controller.get_digital(E_CONTROLLER_DIGITAL_L2));
             lcd::print(8, "Claw: %d", controller.get_digital(E_CONTROLLER_DIGITAL_R1) - controller.get_digital(E_CONTROLLER_DIGITAL_R2));
