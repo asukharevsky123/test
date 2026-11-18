@@ -197,11 +197,11 @@ void autonomous() {
     chassis.moveToPoint(0, 36, 1200, {.minSpeed = 100});
     chassis.moveToPoint(0, 12, 1000, {.forwards = false});
 
-    chassis.setPose(0,0,0);
+    //chassis.setPose(0,0,0);
     chassis.moveToPoint(0, 36, 1200, {.minSpeed = 100});
     chassis.moveToPoint(0, 12, 1000, {.forwards = false});
     
-    chassis.setPose(0,0,0);
+    //chassis.setPose(0,0,0);
     chassis.moveToPoint(0, 36, 1200, {.minSpeed = 100});
     chassis.moveToPoint(0, 12, 1000, {.forwards = false});
     /*
@@ -241,8 +241,8 @@ void opcontrol() {
   // loop to continuously update motors
   while (true) {
     // get joystick positions
-    int turn = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_X);
-    int throttle = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y);
+    int turn = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+    int throttle = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
 
     int fourBar_up = controller.get_digital(E_CONTROLLER_DIGITAL_L1);
     int fourBar_down = controller.get_digital(E_CONTROLLER_DIGITAL_L2);
