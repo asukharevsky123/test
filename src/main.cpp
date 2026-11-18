@@ -14,8 +14,14 @@ red = 100 rpm
 green = 200 rpm
 blue = 600 rpm
 */
+Motor rightFront(-11, MotorGearset::green); // right front motor
+Motor rightBack(-1, MotorGearset::green); // right back motor
+Motor leftFront(20, MotorGearset::green); // left front motor
+Motor leftBack(2, MotorGearset::green); // left back motor
 MotorGroup rightMotors({-1, -11}, MotorGearset::green);  // right motor group
 MotorGroup leftMotors({2,20}, MotorGearset::green); // left motor group
+Motor fourBar_right(-3, MotorGearset::green); // four bar lift right motor
+Motor fourBar_left(9, MotorGearset::green); // four bar lift left motor
 MotorGroup fourBar({-3,9}, MotorGearset::green); // four bar lift
 Motor claw(5, MotorGearset::green); // claw motor
 
@@ -149,12 +155,15 @@ void initialize() {
     Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
+            double motor_temps[7] = {rightFront.get_temperature(), rightBack.get_temperature(), leftFront.get_temperature(), leftBack.get_temperature(), fourBar_right.get_temperature(), fourBar_left.get_temperature(), claw.get_temperature()};
+
             lcd::print(0, "X: %f", chassis.getPose().x);         // x
             lcd::print(1, "Y: %f", chassis.getPose().y);         // y
             lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            lcd::print(4, "FourBar: %d", controller.get_digital(E_CONTROLLER_DIGITAL_L1) - controller.get_digital(E_CONTROLLER_DIGITAL_L2));
-            lcd::print(5, "Claw: %d", controller.get_digital(E_CONTROLLER_DIGITAL_R1) - controller.get_digital(E_CONTROLLER_DIGITAL_R2));
-            lcd::print(6, "HighSens: %s", highSens ? "true" : "false");
+            lcd::print(4,"Motor Temps: RF: %f, RB: %f, LF: %f, LB: %f, 4BR: %f, 4BL: %f, Claw: %f", motor_temps[0], motor_temps[1], motor_temps[2], motor_temps[3], motor_temps[4], motor_temps[5], motor_temps[6]);
+            lcd::print(6, "FourBar: %d", controller.get_digital(E_CONTROLLER_DIGITAL_L1) - controller.get_digital(E_CONTROLLER_DIGITAL_L2));
+            lcd::print(7, "Claw: %d", controller.get_digital(E_CONTROLLER_DIGITAL_R1) - controller.get_digital(E_CONTROLLER_DIGITAL_R2));
+            lcd::print(8, "HighSens: %s", highSens ? "true" : "false");
             //lcd::print(6")
             delay(50);
         }
