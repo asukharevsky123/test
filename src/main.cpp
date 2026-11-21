@@ -212,29 +212,26 @@ void autonomous() {
     delay(500);
     claw.brake();
     
-    /*
-    fourBar.move(100);
-    delay(750);
-    fourBar.brake();
-    delay(250);
-    
-    chassis.moveToPoint(0, -10, 1200, {.forwards = false, .maxSpeed = 100});
-    delay(250);
-    chassis.moveToPoint(0, 0, 1000, {.forwards = true});
     delay(250);
 
+    fourBar.move(100);
+    delay(600);
+    fourBar.brake();
+    delay(250);
+
+    chassis.moveToPoint(0, 5, 500);
+    chassis.turnToHeading(180,1000);
+    chassis.moveToPoint(0,0,500);
+
+    chassis.moveToPoint(0, 10, 1000, {.forwards = false, .maxSpeed = 100});
+    chassis.moveToPoint(0, -4, 750, {.forwards = true});
+    delay(100);
+
     //chassis.setPose(0,0,0);
-    chassis.moveToPoint(0, -10, 1200, {.forwards = false, .maxSpeed = 100});
-    delay(250);
-    chassis.moveToPoint(0, 0, 1000, {.forwards = true});
-    delay(250);
+    chassis.moveToPoint(0, 10, 1000, {.forwards = false, .maxSpeed = 100});
+    chassis.moveToPoint(0, -4, 750, {.forwards = true});
+    delay(100);
     
-    //chassis.setPose(0,0,0);
-    chassis.moveToPoint(0, -10, 1200, {.forwards = false, .maxSpeed = 100});
-    delay(250);
-    chassis.moveToPoint(0, 0, 1000, {.forwards = true});
-    delay(250);
-    */
     /*
     fourBar.move(100);
     delay(250);
@@ -299,7 +296,7 @@ void opcontrol() {
     }
     else fourBar.brake();
     if (claw_open == 1 or claw_close == 1) {
-        claw.move((claw_open - claw_close) * 100);
+        claw.move((claw_open - claw_close) * 80);
     }
     else claw.brake();
     // delay to save resources
