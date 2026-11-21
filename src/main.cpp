@@ -162,13 +162,11 @@ void initialize() {
             lcd::print(0, "X: %f", chassis.getPose().x);         // x
             lcd::print(1, "Y: %f", chassis.getPose().y);         // y
             lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            
-            lcd::print(4, "RF: %.0f, RB: %.0f, LF: %.0f, LB: %.0f", motor_temps[0], motor_temps[1], motor_temps[2], motor_temps[3]);
-            lcd::print(5, "4BR: %.0f, 4BL: %.0f, Claw: %.0f",motor_temps[4], motor_temps[5], motor_temps[6]);
-            
-            lcd::print(7, "FourBar: %d", controller.get_digital(E_CONTROLLER_DIGITAL_L1) - controller.get_digital(E_CONTROLLER_DIGITAL_L2));
-            lcd::print(8, "Claw: %d", controller.get_digital(E_CONTROLLER_DIGITAL_R1) - controller.get_digital(E_CONTROLLER_DIGITAL_R2));
-            lcd::print(9, "HighSens: %s", highSens ? "true" : "false");
+            lcd::print(3, "RF: %.0f, RB: %.0f, LF: %.0f, LB: %.0f", motor_temps[0], motor_temps[1], motor_temps[2], motor_temps[3]);
+            lcd::print(4, "4BR: %.0f, 4BL: %.0f, Claw: %.0f",motor_temps[4], motor_temps[5], motor_temps[6]);
+            lcd::print(5, "FourBar: %d", controller.get_digital(E_CONTROLLER_DIGITAL_L1) - controller.get_digital(E_CONTROLLER_DIGITAL_L2));
+            lcd::print(6, "Claw: %d", controller.get_digital(E_CONTROLLER_DIGITAL_R1) - controller.get_digital(E_CONTROLLER_DIGITAL_R2));
+            lcd::print(7, "HighSens: %s", highSens ? "true" : "false");
             //lcd::print(6")
             delay(50);
         }
@@ -199,6 +197,17 @@ ASSET(left_auton_path_1_txt);
  */
 void autonomous() {
     fourBar.move(100);
+    delay(200);
+    fourBar.brake();
+
+    delay(500);
+
+    claw.move(100);
+    delay(500);
+    claw.brake();
+
+    /*
+    fourBar.move(100);
     delay(750);
     fourBar.brake();
     delay(250);
@@ -220,30 +229,23 @@ void autonomous() {
     delay(250);
     chassis.moveToPoint(0, 0, 1000, {.forwards = false});
     delay(250);
-    
+    */
     /*
-    fourBar.move(100);
-    delay(100);
-    fourBar.brake();
-
-    claw.move(100);
-    delay(500);
-    claw.brake();
-
     fourBar.move(100);
     delay(250);
     fourBar.brake();
-
+    
     chassis.setPose(-60.479, 3.94, 66.835);
     chassis.follow(left_auton_path_1_txt, 15, 3000); // goes to red scoring
 
     fourBar.move(-20);
     delay(250);
     fourBar.brake();
-    */
+    
     claw.move(-100);
     delay(500);
     claw.brake();
+    */
 
     //chassis.setPose(0, 0, 0);
     //chassis.moveToPoint(0, 24, 10000);
