@@ -1,10 +1,14 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
+#include "pros/imu.hpp"
 #include "pros/misc.h"
 #include "pros/motors.h"
+#include <cmath>
 using namespace std;
 using namespace pros;
 using namespace lemlib;
+using namespace lcd;
+
 // controller
 Controller controller(E_CONTROLLER_MASTER);
 
@@ -26,7 +30,7 @@ MotorGroup fourBar({-3,9}, MotorGearset::green); // four bar lift
 Motor claw(5, MotorGearset::green); // claw motor
 
 // parameter variables
-int inertial_sensor_port(12);
+int inertial_sensor_port(13);
 
 int horizontal_tracking_wheel_port(19);
 int vertical_tracking_wheel_port(-11);
@@ -42,8 +46,8 @@ int horizontal_drift(2); // higher values make the robot move faster but causes 
         // using traction wheels
 
 // parameter lists
-float linear_PID[3] = {10, 2, 11}; // kP, kI, kD for linear motion
-float angular_PID[3] = {5, -2, 15}; // kP, kI, kD for angular motion
+float linear_PID[3] = {20, 0, 3}; // kP, kI, kD for linear motion
+float angular_PID[3] = {3, 0, 18}; // kP, kI, kD for angular motion
 
 float throttle_curve[3] = {3, 10, 1.019}; // joystick deadband out of 127, minimum output where
                    // drivetrain will move out of 127, expo curve gain
@@ -81,12 +85,12 @@ ControllerSettings
     linearController(linear_PID[0], // proportional gain (kP)
                      linear_PID[1], // integral gain (kI)
                      linear_PID[2], // derivative gain (kD)
-                     3, // anti windup
-                     1, // small error range, in inches
-                     100, // small error range timeout, in milliseconds
-                     3, // large error range, in inches
-                     500, // large error range timeout, in milliseconds
-                     20 // maximum acceleration (slew)
+                     0, // anti windup
+                     0, // small error range, in inches
+                     0, // small error range timeout, in milliseconds
+                     0, // large error range, in inches
+                     0, // large error range timeout, in milliseconds
+                     0 // maximum acceleration (slew)
     );
 
 // angular motion controller
@@ -159,15 +163,15 @@ void initialize() {
             for (int temp(0); temp<7; temp++){
                 motor_temps[temp] = motor_temps[temp]*9/5 + 32; // convert to fahrenheit
             }
-            lcd::print(0, "X: %f", chassis.getPose().x);         // x
-            lcd::print(1, "Y: %f", chassis.getPose().y);         // y
-            lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            lcd::print(3, "RF: %.0f, RB: %.0f, LF: %.0f, LB: %.0f", motor_temps[0], motor_temps[1], motor_temps[2], motor_temps[3]);
-            lcd::print(4, "4BR: %.0f, 4BL: %.0f, Claw: %.0f",motor_temps[4], motor_temps[5], motor_temps[6]);
-            lcd::print(5, "FourBar: %d", controller.get_digital(E_CONTROLLER_DIGITAL_L1) - controller.get_digital(E_CONTROLLER_DIGITAL_L2));
-            lcd::print(6, "Claw: %d", controller.get_digital(E_CONTROLLER_DIGITAL_R1) - controller.get_digital(E_CONTROLLER_DIGITAL_R2));
-            lcd::print(7, "HighSens: %s", highSens ? "true" : "false");
-            //lcd::print(6")
+            print(0, "X: %f", chassis.getPose().x);         // x
+            print(1, "Y: %f", chassis.getPose().y);         // y
+            print(2, "Theta: %f", chassis.getPose().theta); // heading
+            print(3, "RF: %.0f, RB: %.0f, LF: %.0f, LB: %.0f", motor_temps[0], motor_temps[1], motor_temps[2], motor_temps[3]);
+            print(4, "4BR: %.0f, 4BL: %.0f, Claw: %.0f",motor_temps[4], motor_temps[5], motor_temps[6]);
+            print(5, "FourBar: %d", controller.get_digital(E_CONTROLLER_DIGITAL_L1) - controller.get_digital(E_CONTROLLER_DIGITAL_L2));
+            print(6, "Claw: %d", controller.get_digital(E_CONTROLLER_DIGITAL_R1) - controller.get_digital(E_CONTROLLER_DIGITAL_R2));
+            print(7, "HighSens: %s", highSens ? "true" : "false");
+            //print(6")
             delay(50);
         }
     });
@@ -196,6 +200,8 @@ ASSET(left_auton_path_1_txt);
  * features LemLib has to offer
  */
 void autonomous() {
+    chassis.setPose(0,0,0);
+    
     fourBar.move(100);
     delay(200);
     fourBar.brake();
@@ -205,29 +211,28 @@ void autonomous() {
     claw.move(100);
     delay(500);
     claw.brake();
-
+    
     /*
     fourBar.move(100);
     delay(750);
     fourBar.brake();
     delay(250);
     
-    chassis.setPose(0,0,0);
-    chassis.moveToPoint(0, -10, 1200, {.minSpeed = 80});
+    chassis.moveToPoint(0, -10, 1200, {.forwards = false, .maxSpeed = 100});
     delay(250);
-    chassis.moveToPoint(0, 0, 1000, {.forwards = false});
+    chassis.moveToPoint(0, 0, 1000, {.forwards = true});
     delay(250);
 
     //chassis.setPose(0,0,0);
-    chassis.moveToPoint(0, -10, 1200, {.minSpeed = 80});
+    chassis.moveToPoint(0, -10, 1200, {.forwards = false, .maxSpeed = 100});
     delay(250);
-    chassis.moveToPoint(0, 0, 1000, {.forwards = false});
+    chassis.moveToPoint(0, 0, 1000, {.forwards = true});
     delay(250);
     
     //chassis.setPose(0,0,0);
-    chassis.moveToPoint(0, -10, 1200, {.minSpeed = 80});
+    chassis.moveToPoint(0, -10, 1200, {.forwards = false, .maxSpeed = 100});
     delay(250);
-    chassis.moveToPoint(0, 0, 1000, {.forwards = false});
+    chassis.moveToPoint(0, 0, 1000, {.forwards = true});
     delay(250);
     */
     /*
@@ -246,8 +251,7 @@ void autonomous() {
     delay(500);
     claw.brake();
     */
-
-    //chassis.setPose(0, 0, 0);
+    
     //chassis.moveToPoint(0, 24, 10000);
     //chassis.turnToHeading(90, 10000);
 }
