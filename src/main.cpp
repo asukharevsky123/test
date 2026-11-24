@@ -201,48 +201,49 @@ ASSET(left_auton_path_1_txt);
  */
 void autonomous() {
     chassis.setPose(0,0,0);
-    
+    //pick up fourbar to grab preload
     fourBar.move(100);
     delay(200);
     fourBar.brake();
 
     delay(100);
-
+    // grab preload
     claw.move(100);
     delay(250);
     claw.brake();
     
     delay(100);
-
+    // lift fourbar out of the way
     fourBar.move(100);
     delay(750);
     fourBar.brake();
     delay(250);
-
+    //turn arround and toggle
     chassis.moveToPoint(0, 10, 1000);
     chassis.turnToHeading(180,750);
     delay(250);
     chassis.moveToPoint(0,-3,750, {.minSpeed = 80});
     delay(150);
-
+    // toggle again
     chassis.moveToPoint(0,10, 1000, {.forwards = false, .maxSpeed = 75});
     delay(150);
     chassis.moveToPoint(0, -4, 1000, {.forwards = true, .minSpeed = 80});
     delay(150);
-
+    // move to score position
     chassis.moveToPoint(0,5,750,{.forwards = false, .maxSpeed = 70});
     delay(100);
     chassis.turnToHeading(75,750);
     delay(100);
     chassis.moveToPoint(22,12,1750,{.forwards = true, .maxSpeed = 70});
     delay(100);
-
-    chassis.moveToPoint(17,12,500,{.forwards = false});
-
+    // final adgustment to scoring position
+    chassis.moveToPoint(17,16,500,{.forwards = false});
+    // bring fourbar down to score
     fourBar.move(-20);
-    delay(750);
+    delay(850);
     fourBar.brake();
-
+    delay(250);
+    // release cone to score
     claw.move(-100);
     delay(250);
     claw.brake();
