@@ -206,39 +206,48 @@ void autonomous() {
     delay(200);
     fourBar.brake();
 
-    delay(500);
+    delay(100);
 
     claw.move(100);
-    delay(500);
+    delay(250);
     claw.brake();
     
-    delay(250);
+    delay(100);
 
     fourBar.move(100);
-    delay(600);
+    delay(750);
     fourBar.brake();
     delay(250);
 
-    chassis.moveToPoint(0, 5, 500);
+    chassis.moveToPoint(0, 10, 1000);
     chassis.turnToHeading(180,750);
-    chassis.moveToPoint(0,0,500);
+    delay(250);
+    chassis.moveToPoint(0,-3,750, {.minSpeed = 80});
+    delay(150);
 
-    chassis.moveToPoint(0, 10, 1000, {.forwards = false, .maxSpeed = 100});
-    chassis.moveToPoint(0, -4, 750, {.forwards = true});
+    chassis.moveToPoint(0,10, 1000, {.forwards = false, .maxSpeed = 75});
+    delay(150);
+    chassis.moveToPoint(0, -4, 1000, {.forwards = true, .minSpeed = 80});
+    delay(150);
+
+    chassis.moveToPoint(0,5,750,{.forwards = false, .maxSpeed = 70});
+    delay(100);
+    chassis.turnToHeading(75,750);
+    delay(100);
+    chassis.moveToPoint(22,12,1750,{.forwards = true, .maxSpeed = 70});
     delay(100);
 
-    //chassis.setPose(0,0,0);
-    chassis.moveToPoint(0, 10, 1000, {.forwards = false, .maxSpeed = 100});
-    chassis.moveToPoint(0, -4, 750, {.forwards = true});
-    delay(100);
+    chassis.moveToPoint(17,12,500,{.forwards = false});
 
-    chassis.moveToPoint(0,5,500,{.forwards = false});
-    chassis.turnToHeading(0,750);
-    chassis.moveToPoint(0,0,500,{.forwards = false});
+    fourBar.move(-20);
+    delay(750);
+    fourBar.brake();
+
+    claw.move(-100);
+    delay(250);
+    claw.brake();
+
     /*
-    chassis.setPose(-60.479, 3.94, 66.835);
-    chassis.follow(left_auton_path_1_txt, 15, 3000); // goes to red scoring
-
     fourBar.move(-20);
     delay(250);
     fourBar.brake();
